@@ -11,8 +11,9 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
  * @version 1.0.0
  * @link http://merdan.cc
  */
-class NavMenu_Plugin implements Typecho_Plugin_Interface {
-    
+class NavMenu_Plugin implements Typecho_Plugin_Interface
+{
+
     /**
      * 启用插件方法,如果启用失败,直接抛出异常
      *
@@ -21,9 +22,33 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface {
      * @return void
      * @throws Typecho_Plugin_Exception
      */
-    public static function activate() {
-        Helper::addPanel(1, 'NavMenu/panel/nav-menus.php', _t('管理菜单'), _t('管理菜单'), 'administrator');
+    public static function activate()
+    {
+        // 初始化数据库
+        $db = Typecho_Db::get();
+        $options = Typecho_Widget::widget('Widget_Options');
+        $navMenus = $db->fetchRow($db->select()->from('table.options')->where('name = ? and user = ?', 'navMenus', 0));
+        if (empty($navMenus)) {
+            $struct = array(
+                'name' => 'navMenus',
+                'user' => 0,
+                'value' => '["default"]',
+            );
+            $db->query($db->insert('table.options')->rows($struct));
+        }
+        $navMenuOrder = $db->fetchRow($db->select()->from('table.options')->where('name = ? and user = ?', 'navMenuOrder', 0));
+        if (empty($navMenuOrder)) {
+            $siteUrl = str_replace("/", "\/", $options->siteUrl);
+            $struct = array(
+                'name' => 'navMenuOrder',
+                'user' => 0,
+                'value' => '{"default":[{"type":"custom","name":"\u9996\u9875","id":"' . $siteUrl . '","class":"","target":"","children":[]}]}',
+            );
+            $db->query($db->insert('table.options')->rows($struct));
+        }
+        Helper::addPanel(3, 'NavMenu/panel/nav-menus.php', _t('菜单'), NULL, 'administrator');
         Helper::addAction('nav-edit', 'NavMenu_Edit');
+        Typecho_Plugin::factory('Widget_Archive')->___navbar = ['NavMenu_Plugin', 'navbar'];
     }
 
     /**
@@ -34,31 +59,33 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface {
      * @return void
      * @throws Typecho_Plugin_Exception
      */
-    public static function deactivate() {
+    public static function deactivate()
+    {
         Helper::removeAction('nav-edit');
-        Helper::removePanel(1, 'NavMenu/panel/nav-menus.php');
+        Helper::removePanel(3, 'NavMenu/panel/nav-menus.php');
     }
 
-    public static function config(\Typecho_Widget_Helper_Form $form) {
-        
+    public static function config(Typecho_Widget_Helper_Form $form)
+    {
     }
 
-    public static function personalConfig(\Typecho_Widget_Helper_Form $form) {
-        
+    public static function personalConfig(Typecho_Widget_Helper_Form $form)
+    {
     }
-    
-    public static function header_scripts($header){
+
+    public static function header_scripts($header)
+    {
         $options = Helper::options();
-        $panelUrl = $options->pluginUrl.'/NavMenu/panel';
-        if($options->lang == "ug_CN"){
-            echo $header,'<link rel="stylesheet" href="'.$panelUrl.'/css/nav-menu-rtl.css"/>';
-        }else{
-            echo $header,'<link rel="stylesheet" href="'.$panelUrl.'/css/nav-menu.css"/>';
+        $panelUrl = $options->pluginUrl . '/NavMenu/panel';
+        if ($options->lang == "ug_CN") {
+            echo $header, '<link rel="stylesheet" href="' . $panelUrl . '/css/nav-menu-rtl.css"/>';
+        } else {
+            echo $header, '<link rel="stylesheet" href="' . $panelUrl . '/css/nav-menu.css"/>';
         }
     }
-    
-    public static function navMenu($menu = 'default', $navOptions = NULL) {
+
+    public static function navbar($menu = 'default', $navOptions = NULL)
+    {
         Typecho_Widget::widget('NavMenu_List')->navMenu($menu, $navOptions);
     }
-
 }

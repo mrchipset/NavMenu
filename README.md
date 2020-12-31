@@ -23,7 +23,7 @@
 5. 调整完了之后 *务必点击 `保存设置` 按钮进行保存，否则菜单不会生效*
 6. 在主题中使用一下方法调用菜单:
 ```php
-<?php $this->widget('NavMenu_List')->navMenu('header_menu'); ?>
+<?php $this->navbar('header_menu'); ?>
 ```
 7. 当前菜单有相应的 `.current` class 名，可进行菜单高亮等布置
 ## 调用函数说明：
@@ -33,7 +33,7 @@
  * @param string $menu 菜单名称
  * @param null $navOptions 菜单配置
  */
-public function navMenu($menu = 'default', $navOptions = NULL)
+public function render($menu = 'default', $navOptions = NULL)
 
 ```
 ## 菜单配置项
