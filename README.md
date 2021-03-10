@@ -4,26 +4,29 @@
  将插件克隆到本地, 放到 `usr/plugins` 目录下即可。
 
 ## 插件说明
- 此插件早在2015年本人在大三时就已完成。当时只支持单个菜单，最近抽点时间改成多菜单支持。
+此插件早在2015年merdan在大三时就已完成。当时只支持单个菜单，后来抽点时间改成多菜单支持。
+最近本人用到了这个插件，发现这个插件存在许多问题，一一修复并发布到 Github。
 
 ## 插件特点：
+
 1. 多菜单支持
 2. 支持分类、独立页面和自定义页面链接
 3. 支持编辑菜单项（自定义菜单名称，自定义class, 新窗口等）
 4. 可拖动设置顺序和层级
 5. 菜单结构可自定义，方便个性化布局
+6. 支持内置变量替换，使用内置页面即可
 
 ## 使用方法
 
 1. 后台启用插件
 2. 进入主菜单 `控制台->菜单管理` 即可看到菜单设置页面。
 3. 默认有名为`default` 的菜单，在左侧新增菜单可以新增。
-3. 左下方的菜单项里可添加分类，独立页面和自定义链接到右侧菜单结构中。
+3. 左下方的菜单项里可添加分类，独立页面、内置页面和自定义链接到右侧菜单结构中。
 4. 拉动菜单结构可以调整菜单顺序和层次。
 5. 调整完了之后 *务必点击 `保存设置` 按钮进行保存，否则菜单不会生效*
 6. 在主题中使用一下方法调用菜单:
 ```php
-<?php $this->navbar('header_menu'); ?>
+<?php Typecho_Widget::widget('NavMenu_List')->navMenu('header'); ?>
 ```
 7. 当前菜单有相应的 `.current` class 名，可进行菜单高亮等布置
 ## 调用函数说明：
@@ -33,7 +36,7 @@
  * @param string $menu 菜单名称
  * @param null $navOptions 菜单配置
  */
-public function render($menu = 'default', $navOptions = NULL)
+public function navMenu($menu = 'default', $navOptions = NULL)
 
 ```
 ## 菜单配置项
@@ -44,11 +47,13 @@ public function render($menu = 'default', $navOptions = NULL)
     'wrapId' => '', // 容器自定义ID (二级菜单展开等功能可使用ID 去解决)
     'itemTag' => 'li', // a 链接的容器
     'itemClass' => '', // 容器自定义class
+    'current' => 'current', // 当前菜单的类名
+    'caret' => '+' // 有子菜单的菜单添加提示下拉图标
 ];
 ```
 
 ## 插件截图
-![image](https://raw.githubusercontent.com/doghap/NavMenu/master/screen.png)
+![截图](https://raw.githubusercontent.com/benzbrake/NavMenu/master/screen.png)
 
 
 ## 其他

@@ -11,6 +11,8 @@ class NavMenu_List extends NavMenu_Abstract_Nav
      */
     private $_navOptions = null;
     private $_nav_resourse = null;
+    private $_nav_menus;
+    private $_current_nav;
     private $_customCreateNavItemsCallback = false;
 
     public function __construct($request, $response, $params = null)
@@ -22,15 +24,17 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             $this->_customCreateNavItemsCallback = true;
         }
 
-        $this->_nav_menus = $this->db->fetchRow($this->select()
-                ->where('name = ?', 'navMenus')->limit(1));
+        $_nav_menus = $this->db->fetchRow($this->select()
+            ->where('name = ?', 'navMenus')->limit(1));
 
-        if (!$this->_nav_menus) {
-            $this->_nav_menus['name'] = 'navMenus';
-            $this->_nav_menus['value'] = json_encode(['default']);
+        if (!$_nav_menus) {
+            // 插入默认数据
+            $_nav_menus['name'] = 'navMenus';
+            $_nav_menus['value'] = json_encode(['default']);
             $this->insert($this->_nav_menus);
         }
-        $this->_nav_menus = json_decode($this->_nav_menus['value'], true);
+
+        $this->_nav_menus = json_decode($_nav_menus['value'], true);
 
         $this->_current_nav = $request->get('current', $this->_nav_menus[0]);
 
@@ -39,7 +43,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
         }
 
         $this->_nav_resourse = $this->db->fetchRow($this->select()
-                ->where('name = ?', 'navMenuOrder')->limit(1));
+            ->where('name = ?', 'navMenuOrder')->limit(1));
         if (!$this->_nav_resourse) {
             $this->_nav_resourse['name'] = 'navMenuOrder';
             $this->_nav_resourse['value'] = [];
@@ -52,14 +56,12 @@ class NavMenu_List extends NavMenu_Abstract_Nav
         }
         $this->_nav_resourse = json_decode($this->_nav_resourse['value']);
     }
-
     /**
      * @param string $menu 菜单名称
      * @param null $navOptions 菜单配置
      */
     public function navMenu($menu = 'default', $navOptions = null)
     {
-
         //初始化一些变量
         $this->_navOptions = Typecho_Config::factory($navOptions);
         $this->_navOptions->setDefault(array(
@@ -68,114 +70,114 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             'wrapId' => '',
             'itemTag' => 'li',
             'itemClass' => '',
+            'current' => 'current',
+            'caret' => '+'
         ));
-
-        $this->stack = $this->_nav_resourse->{$menu};
-
-        if ($this->have()) {
+        $menuObject = $this->_nav_resourse->$menu;
+        if ($menuObject) {
             if ($this->_navOptions->wrapTag) {
                 echo '<' . $this->_navOptions->wrapTag . (empty($this->_navOptions->wrapClass) ? ' class="nav-menu"' : ' class="nav-menu ' . $this->_navOptions->wrapClass . '"') . (empty($this->_navOptions->wrapId) ? '' : ' id="' . $this->_navOptions->wrapId . '"') . '>';
-                self::generateNavItems($this->_nav_resourse->{$menu});
+                echo self::generateNavItems($menuObject);
                 echo '</' . $this->_navOptions->wrapTag . '>';
             } else {
-                self::generateNavItems($this->_nav_resourse->{$menu});
+                echo self::generateNavItems($menuObject);
             }
             $this->stack = $this->_map;
         }
     }
 
+    /** 构建菜单 */
     private function generateNavItems($items, $level = 1)
     {
-
-        $widget_cat = Typecho_Widget::widget('Widget_Metas_Category_List');
-        $widget_archive = Typecho_Widget::widget('Widget_Archive');
+        $html = '';
+        $archive = Typecho_Widget::widget('Widget_Archive');
         $navOptions = $this->_navOptions;
         if (is_array($items)) {
-            foreach ($items as $item) {
-                $classes = array();
+            foreach ($items as $key => $v) {
+                $item = array();
+                $item['class'] = array('menu-item');
                 if ($navOptions->itemClass) {
-                    $classes[] = $navOptions->itemClass;
+                    $item['class'][] = $navOptions->itemClass;
                 }
-                $classes[] = 'menu-item';
-                $item_class = isset($item->class) ? ' class="' . $item->class . '"' : "";
-                $item_target = isset($item->target) && "_blank" == $item->target ? ' target="_blank"' : "";
 
-                switch ($item->type) {
+                if ($v->class) $item['class'][] = $v->class;
+                $item['target'] = isset($v->target) && "_blank" == $v->target ? ' target="_blank"' : "";
+
+                $item['name'] = $v->name;
+
+                switch ($v->type) {
                     case 'category':
-                        $current_cat = $widget_cat->getCategory($item->id);
-                        $classes[] = 'menu-category-item';
-                        if ($widget_archive->is('archive', $current_cat['slug'])) {
-                            $classes[] = 'current';
+                        $category = Typecho_Widget::widget('Widget_Metas_Category_List')->getCategory($v->id);
+                        $item['class'][] = 'menu-category-item';
+                        if ($archive->is('category', $category['slug'])) {
+                            $item['class'][] = $navOptions->current;
                         }
-                        if ($navOptions->itemTag) {
-                            echo '<', $navOptions->itemTag, ' class="', implode(' ', $classes), '">';
-                        }
-
-                        echo '<a href="', $current_cat['permalink'], '" ', $item_class, $item_target, '>', $item->name, '</a>';
-                        break;
+                        $item['url'] = $category['permalink'];
                     case 'page':
-                        $current_page = $this->getPage($item->id);
-                        $classes[] = 'menu-page-item';
-                        if ($widget_archive->is('page', $current_page['slug'])) {
-                            $classes[] = 'current';
+                        $page = $this->widgetById($v->id);
+                        $item['class'][] = 'menu-page-item';
+                        if ($archive->is('page', $page->slug)) {
+                            $item['class'][] = $navOptions->current;
                         }
-                        if ($navOptions->itemTag) {
-                            echo '<', $navOptions->itemTag, ' class="', implode(' ', $classes), '">';
-                        }
-
-                        echo '<a href="', $current_page['permalink'], '" ', $item_class, '>', $item->name, '</a>';
+                        $item['url'] = $page->permalink;
                         break;
                     case 'internal':
-                        $classes[] = 'menu-custom-item';
-                        $current_url = Typecho_Request::getRequestUrl();
-                        $item->id = preg_replace_callback('/\{([_a-z0-9]+)\}/i', function($matches) {
-                          return Helper::options()->{$matches[1]};
-                        }, $item->id);
-                        if ($current_url == $item->id) {
-                            $classes[] = 'current';
+                        $item['class'][] = 'menu-custom-item';
+                        $item['name'] = preg_replace_callback('/\{([_a-z0-9]+)\}/i', function ($matches) {
+                            return Helper::options()->{$matches[1]};
+                        }, $item['name']);
+                        $item['url'] = preg_replace_callback('/\{([_a-z0-9]+)\}/i', function ($matches) {
+                            return Helper::options()->{$matches[1]};
+                        }, $v->id);
+                        if ($archive->request->getRequestUrl() == $item['url']) {
+                            $item['class'][] = $navOptions->current;
                         }
-                        if ($navOptions->itemTag) {
-                            echo '<', $navOptions->itemTag, ' class="', implode(' ', $classes), '">';
-                        }
-                        echo '<a href="', $item->id, '" ', $item_class, '>', $item->name, '</a>';
-                        break;
                         break;
                     case 'custom':
-                        $classes[] = 'menu-custom-item';
-                        $current_url = Typecho_Request::getRequestUrl();
-                        if ($current_url == $item->id) {
-                            $classes[] = 'current';
+                        $item['class'][] = 'menu-custom-item';
+                        $item['url'] = $v->id;
+                        if ($archive->request->getRequestUrl() == $item['url']) {
+                            $item['class'][] = $navOptions->current;
                         }
-                        if ($navOptions->itemTag) {
-                            echo '<', $navOptions->itemTag, ' class="', implode(' ', $classes), '">';
-                        }
-
-                        echo '<a href="', $item->id, '" ', $item_class, '>', $item->name, '</a>';
                         break;
                 }
-                if (isset($item->children) && count($item->children) > 0) {
-                    echo "<ul class=\"sub-menu level-{$level}\">";
-                    self::generateNavItems($item->children, $level + 1);
-                    echo '</ul>';
+
+                $item['caret'] = isset($v->children) && count($v->children) > 0 ? $navOptions->caret : '';
+                if (isset($v->children) && count($v->children) > 0)
+                    $item['class'][] = 'menu-has-children';
+
+                if ($navOptions->itemTag)
+                    $html .= '<' . $navOptions->itemTag  . ' class="' . implode(" ", $item['class']) . '">';
+
+                $html .= str_replace(
+                    array('{url}', '{name}', '{caret}', '{target}'),
+                    array($item['url'], $item['name'], $item['caret'], $item['target']),
+                    '<a href="{url}" {target}>{name} {caret}</a>'
+                );
+
+                if (isset($v->children) && count($v->children) > 0) {
+                    $html .= '<ul class="sub-menu level-' . $level .  '">';
+                    $html .= self::generateNavItems($v->children, $level + 1);
+                    $html .= '</ul>';
                 }
                 if ($navOptions->itemTag) {
-                    echo '</' . $navOptions->itemTag . '>';
+                    $html .= '</' . $navOptions->itemTag . '>';
                 }
-
             }
         }
+        return $html;
     }
 
-    private function getPage($id)
+    private function widgetById($id)
     {
-        $this->widget('Widget_Contents_Page_List')->to($pages);
-        if (count($pages->stack) > 0) {
-            foreach ($pages->stack as $page) {
-                if ($id == $page['cid']) {
-                    return $page;
-                }
+        $className = "Widget_Abstract_Contents";
+        $db = Typecho_Db::get();
+        $widget = new $className(Typecho_Request::getInstance(), Typecho_Widget_Helper_Empty::getInstance(), null);
 
-            }
-        }
+        $db->fetchRow(
+            $widget->select()->where("cid = ?", $id)->limit(1),
+            array($widget, 'push')
+        );
+        return $widget;
     }
 }

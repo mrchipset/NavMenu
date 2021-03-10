@@ -47,7 +47,6 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
         }
         Helper::addPanel(3, 'NavMenu/panel/nav-menus.php', _t('菜单'), NULL, 'administrator');
         Helper::addAction('nav-edit', 'NavMenu_Edit');
-        Typecho_Plugin::factory('Widget_Archive')->___navbar = ['NavMenu_Plugin', 'navbar'];
     }
 
     /**
@@ -87,10 +86,5 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
         } else {
             echo $header, '<link rel="stylesheet" href="' . $panelUrl . '/css/nav-menu.css"/>';
         }
-    }
-
-    public static function navbar($archive, $menu = 'default', $navOptions = NULL)
-    {
-        Typecho_Widget::widget('NavMenu_List')->navMenu($menu, $navOptions);
     }
 }
