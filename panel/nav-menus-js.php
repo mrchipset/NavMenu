@@ -5,17 +5,33 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-
 		var $addBtn = $("#add_to_menu");
 		var $selectedItems = $("#selectedItems");
 		var $orderlist = $("#orderlist");
+		var $nameList = {
+			'category': '<?php _e('分类') ?>',
+			'page': '<?php _e('独立页面') ?>',
+			'internal': '<?php _e('内置链接') ?>',
+			'default': '<?php _e('自定义') ?>'
+		}
+
+		// 获取类型
+		function getTypeName(key) {
+			key = key.replace(/^#/i, '');
+			if (jQuery.inArray(key, $nameList)) {
+				return $nameList[key];
+			}
+			return $nameList['default'];
+		}
 		<?php $current_level = Typecho_Widget::widget('NavMenu_Edit')->getCurrentLevel(); ?>
 		var current_level = <?php echo  isset($current_level) ? $current_level : 0; ?>;
 
 		//更新菜单排序
 		function updateMenuOrder() {
 			setTimeout(function() {
+				$('.btn-save').attr('disabled', true);
 				$orderlist.val(JSON.stringify(makeOrderlist()));
+				$('.btn-save').attr('disabled', false);
 			}, 1000);
 		}
 
@@ -24,18 +40,8 @@
 			if (items.length > 0) {
 				for (var i = 0; i < items.length; i++) {
 					var $item = menu_order[i],
-						$item_type;
-					switch ($item.type) {
-						case 'cat':
-							$item_type = '<?php _e('分类') ?>';
-							break;
-						case 'page':
-							$item_type = '<?php _e('独立页面') ?>';
-							break;
-						default:
-							$item_type = '<?php _e('自定义链接') ?>';
-					}
-					var menu_html = '<li id="menu_item" data-id="' + $item.id + '" data-type="' + $item.type + '" data-name="' + $item.name + '" class="menu_item mjs-nestedSortable-leaf"><dl class="menu-item-bar"><dt class="menu-item-handle"><span class="item-title"><span class="menu-item-title">' + $item.name + '</span></span><span class="item-controls"><span class="item-type">' + $item_type + '</span><a class="item-edit" href="#"></a></span></dt></dl>';
+						$item_type = getTypeName($item.type);
+					var menu_html = `<li id="menu_item" data-id="${item.id}" data-type="${item.type}" data-name="${item.name}" class="menu_item mjs-nestedSortable-leaf"><dl class="menu-item-bar"><dt class="menu-item-handle"><span class="item-title"><span class="menu-item-title">${item.name}</span></span><span class="item-controls"><span class="item-type">${item_type}</span><a class="item-edit" href="#"></a></span></dt></dl>`;
 
 					if ($item.children) {
 						menu_html += '<ul>' + createMenuItems($item.children) + '</ul>';
@@ -43,7 +49,6 @@
 					menu_html += '</li>';
 				}
 			}
-			//console.log(menu_html);
 			return menu_html;
 		}
 
@@ -64,7 +69,7 @@
 			listType: 'ul',
 			handle: 'dl',
 			items: 'li',
-			rtl: true,
+			rtl: <?php if (NavMenu_Plugin::isRtl()) : ?>true<?php else : ?>false<?php endif; ?>,
 			maxLevels: 3,
 			tolerenceElement: '>.menu-item-bar',
 			opacity: 0.8,
@@ -76,28 +81,24 @@
 		});
 
 		$addBtn.click(function() {
-			var d = $(this),
-				selected_el = d.attr('data-type'),
-				f, html, item_type_title = selected_el === '#cat' ? '<?php _e('分类') ?>' : selected_el === '#page' ? '<?php _e('独立页面') ?>' : '<?php _e('自定义链接') ?>';
-			if (selected_el === '#custom') {
+			var selected_el = $(this).attr('data-type'),
+				item_type = selected_el.replace(/^#/, ''),
+				f, html, item_type_title = getTypeName(item_type);
+			if (item_type === "custom") {
 				var link_name = $('#link_name').val(),
 					link_url = $('#link_url').val();
 				if ('' === link_url || "http://" === link_url || '' === link_name) return false;
 				current_level++;
-				html = '<li id="menu_item_' + current_level + '" data-id="' + link_url + '" data-type="custom" data-name="' + link_name + '" data-class="" data-target="" class="menu_item"><dl class="menu-item-bar"><dt class="menu-item-handle"><span class="item-title"><span class="menu-item-title">' + link_name + '</span></span><span class="item-controls"><span class="item-type">' + item_type_title + '</span><a class="item-edit" href="#" data-item="menu_item_' + current_level + '"></a></span></dt></dl><div class="menu-item-settings" id="menu_item_settings_' + current_level + '" data-item="menu_item_' + current_level + '"><section class="typecho-post-option"><label for="order" class="typecho-label"><?php _e("链接名称") ?></label><p><input type="text" name="link_name" value="' + link_name + '" class="w-100"></p></section><section class="typecho-post-option"><label for="order" class="typecho-label"><?php _e("链接地址") ?></label><p><input type="text" name="link_url" value="' + link_url + '" placeholder="http://" class="w-100"></p></section><section class="typecho-post-option"><label for="link_class" class="typecho-label"><?php _e('自定义class值'); ?></label><p><input type="text" id="link_class" name="link_class" class="w-100"></p></section><section class="typecho-post-option"><p><input type="checkbox" id="link_target_' + current_level + '" name="link_target" value="_blank"><label for="link_target_' + current_level + '"><?php _e("新标签中打开") ?></label></p></section><button class="btn primary save_menu_item" data-item-settings="menu_item_settings_' + current_level + '" data-item="menu_item_' + current_level + '" data-type="custom"><?php _e("保存菜单项") ?></button><a href="#" class="delete_menu_item" data-id="menu_item_' + current_level + '"><?php _e("删除") ?></a></div></li>';
+				html = `<li id="menu_item_${current_level}" data-id="${link_url}" data-type="${item_type}" data-name="${link_name}" data-class="" data-target="" class="menu_item"><dl class="menu-item-bar"><dt class="menu-item-handle"><span class="item-title"><span class="menu-item-title">${link_name}</span></span><span class="item-controls"><span class="item-type">${item_type_title}</span><a class="item-edit" href="#" data-item="menu_item_${current_level}"></a></span></dt></dl><div class="menu-item-settings" id="menu_item_settings_${current_level}" data-item="menu_item_${current_level}"><section class="typecho-post-option"><label for="order" class="typecho-label"><?php _e("链接名称") ?></label><p><input type="text" name="link_name" value="${link_name}" class="w-100"></p></section><section class="typecho-post-option"><label for="order" class="typecho-label"><?php _e("链接地址") ?></label><p><input type="text" name="link_url" value="${link_url}" placeholder="http://" class="w-100"></p></section><section class="typecho-post-option"><label for="link_class" class="typecho-label"><?php _e('自定义class值'); ?></label><p><input type="text" id="link_class" name="link_class" class="w-100"></p></section><section class="typecho-post-option"><p><input type="checkbox" id="link_target_${current_level}" name="link_target" value="_blank"><label for="link_target_${current_level}"><?php _e("新标签中打开") ?></label></p></section><button class="btn primary save_menu_item" data-item-settings="menu_item_settings_${current_level}" data-item="menu_item_${current_level}" data-type="custom"><?php _e("保存菜单项") ?></button><a href="#" class="delete_menu_item" data-id="menu_item_${current_level}"><?php _e("删除") ?></a></div></li>`;
 				$selectedItems.append(html);
 				$('#link_name, #link_url').val('');
 			} else {
-				f = $(selected_el).find("input:checked"),
-					data_type = $(this).attr('data-type') === "#cat" ? "cat" : "page";
+				f = $(selected_el).find("input:checked");
 				if (f.length > 0) {
 					f.each(function() {
 						current_level++;
-						if ($(this).attr('name') === 'index') {
-							html = '<li id="menu_item_' + current_level + '" data-id="' + $(this).val() + '" data-type="custom" data-name="' + $(this).data('name') + '" data-class="" data-target="" class="menu_item"><dl class="menu-item-bar"><dt class="menu-item-handle"><span class="item-title"><span class="menu-item-title">' + $(this).data('name') + '</span></span><span class="item-controls"><span class="item-type"><?php _e('自定义链接'); ?></span><a class="item-edit" href="#" data-item="menu_item_' + current_level + '"></a></span></dt></dl><div class="menu-item-settings" id="menu_item_settings_' + current_level + '" data-item="menu_item_' + current_level + '"><section class="typecho-post-option"><label for="order" class="typecho-label"><?php _e("链接名称") ?></label><p><input type="text" name="link_name" value="' + $(this).data('name') + '" class="w-100"></p></section><section class="typecho-post-option"><label for="order" class="typecho-label"><?php _e("链接地址") ?></label><p><input type="text" name="link_url" value="' + $(this).val() + '" placeholder="http://" class="w-100"></p></section><section class="typecho-post-option"><label for="link_class" class="typecho-label"><?php _e('自定义class值'); ?></label><p><input type="text" id="link_class" name="link_class" class="w-100"></p></section><section class="typecho-post-option"><p><input type="checkbox" id="link_target_' + current_level + '" name="link_target" value="_blank"><label for="link_target_' + current_level + '"><?php _e("新标签中打开") ?></label></p></section><button class="btn primary save_menu_item" data-item-settings="menu_item_settings_' + current_level + '" data-item="menu_item_' + current_level + '" data-type="custom"><?php _e("保存菜单项") ?></button><a href="#" class="delete_menu_item" data-id="menu_item_' + current_level + '"><?php _e("删除") ?></a></div></li>';
-						} else {
-							html = '<li id="menu_item_' + current_level + '" data-id="' + $(this).val() + '" data-type="' + data_type + '"  data-name="' + $(this).data('name') + '" data-class="" data-target="" class="menu_item"><dl class="menu-item-bar"><dt class="menu-item-handle"><span class="item-title"><span class="menu-item-title">' + $(this).data('name') + '</span></span><span class="item-controls"><span class="item-type">' + item_type_title + '</span><a class="item-edit" href="#" data-item="menu_item_' + current_level + '"></a></span></dt></dl><div class="menu-item-settings" id="menu_item_settings_' + current_level + '"><section class="typecho-post-option"><label for="order" class="typecho-label"><?php _e("链接名称") ?></label><p><input type="text" id="link_name" name="link_name" value="' + $(this).data('name') + '" class="w-100"></p></section><section class="typecho-post-option"><label for="link_class" class="typecho-label"><?php _e('自定义class值'); ?></label><p><input type="text" id="link_class" name="link_class" class="w-100"></p></section><section class="typecho-post-option"><p><input type="checkbox" id="link_target_' + current_level + '" name="link_target" value="_blank"><label for="link_target_' + current_level + '"><?php _e("新标签中打开") ?></label></p></section><button class="btn primary save_menu_item" data-item-settings="menu_item_settings_' + current_level + '" data-item="menu_item_' + current_level + '" data-type="' + data_type + '"><?php _e("保存菜单项") ?></button><a href="#" class="delete_menu_item" data-id="menu_item_' + current_level + '"><?php _e("删除") ?></a></div></li>';
-						}
+						sectionInternal = item_type === "internal" ? `<section class="typecho-post-option"><label for="order" class="typecho-label"><?php _e("链接地址") ?></label><p><input type="text" name="link_url" value="${$(this).val()}" placeholder="http://" class="w-100"></p></section>` : '';
+						html = `<li id="menu_item_${current_level}" data-id="${$(this).val()}" data-type="${item_type}"  data-name="${$(this).data('name')}" data-class="" data-target="" class="menu_item"><dl class="menu-item-bar"><dt class="menu-item-handle"><span class="item-title"><span class="menu-item-title">${$(this).data('name')}</span></span><span class="item-controls"><span class="item-type">${item_type_title}</span><a class="item-edit" href="#" data-item="menu_item_${current_level}"></a></span></dt></dl><div class="menu-item-settings" id="menu_item_settings_${current_level}"><section class="typecho-post-option"><label for="order" class="typecho-label"><?php _e("链接名称") ?></label><p><input type="text" id="link_name" name="link_name" value="${$(this).data('name')}" class="w-100"></p></section>${sectionInternal}<section class="typecho-post-option"><label for="link_class" class="typecho-label"><?php _e('自定义class值'); ?></label><p><input type="text" id="link_class" name="link_class" class="w-100"></p></section><section class="typecho-post-option"><p><input type="checkbox" id="link_target_${current_level}" name="link_target" value="_blank"><label for="link_target_${current_level}"><?php _e("新标签中打开") ?></label></p></section><button class="btn primary save_menu_item" data-item-settings="menu_item_settings_${current_level}" data-item="menu_item_${current_level}" data-type="${item_type}"><?php _e("保存菜单项") ?></button><a href="#" class="delete_menu_item" data-id="menu_item_${current_level}"><?php _e("删除") ?></a></div></li>`;
 						$selectedItems.append(html);
 						$(this).attr("checked", false);
 					});
@@ -183,7 +184,6 @@
 		});
 
 		$(document).on('click', '.delete_menu_item', function() {
-
 			var d = $(this),
 				item = $("#" + d.data("id"));
 			item.removeClass('active');

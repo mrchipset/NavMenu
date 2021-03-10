@@ -16,18 +16,19 @@ Typecho_Widget::widget('Widget_Metas_Tag_Admin')->to($tags);
                     <p><?php _e("因数据库有关，菜单名称建议用英文名字"); ?></p>
                     <?php Typecho_Widget::widget('NavMenu_Edit')->menuForm()->render(); ?>
                 </div>
-                <div class="typecho-table-wrap">
+                <div class="typecho-table-wrap" id="menu-list">
                     <h2 class="panel-title"><?php _e("菜单项"); ?></h2>
-                    <?php  ?>
-                    <ul class="typecho-option-tabs clearfix ">
-                        <li class="w-30 active"><a href="#cat"><?php _e('分类') ?></a></li>
-                        <li class="w-30"><a href="#page" id="tab-files-btn"><?php _e('独立页面') ?></a></li>
-                        <li class="w-30"><a href="#custom" id="tab-files-btn"><?php _e('自定义链接') ?></a></li>
+                    <?php ?>
+                    <ul class="typecho-option-tabs clearfix">
+                        <li class="w-25 active"><a href="#category"><?php _e('分类') ?></a></li>
+                        <li class="w-25"><a href="#page" id="tab-files-btn"><?php _e('独立页面') ?></a></li>
+                        <li class="w-25"><a href="#internal" id="tab-files-btn"><?php _e('内置链接') ?></a></li>
+                        <li class="w-25"><a href="#custom" id="tab-files-btn"><?php _e('自定义') ?></a></li>
                     </ul>
-                    <div id="cat" class="tab-content ">
+                    <div id="category" class="tab-content">
                         <section class="typecho-post-option category-option">
                             <?php Typecho_Widget::widget('Widget_Metas_Category_List')->to($category); ?>
-                            <ul>  
+                            <ul>
                                 <?php while ($category->next()) : ?>
                                     <li><?php echo str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $category->levels); ?><input type="checkbox" name="cat" id="category-<?php $category->mid(); ?>" value="<?php $category->mid(); ?>" data-type="cat" data-name="<?php $category->name(); ?>" data-url="<?php $category->permalink() ?>" />
                                         <label for="category-<?php $category->mid(); ?>"><?php $category->name(); ?></label>
@@ -39,13 +40,24 @@ Typecho_Widget::widget('Widget_Metas_Tag_Admin')->to($tags);
                     <div id="page" class="tab-content hidden">
                         <section class="typecho-post-option category-option">
                             <ul>
-                                <li><input type="checkbox" name="index" id="index" value="<?php $options->siteUrl(); ?>" data-type="custom" data-name="<?php _e("首页"); ?>" data-url="<?php $options->siteUrl(); ?>" />
-                                        <label for="index"><?php _e("首页"); ?></label></li>
                                 <?php Typecho_Widget::widget('Widget_Contents_Page_List')->to($pages); ?>
                                 <?php while ($pages->next()) : ?>
                                     <li><input type="checkbox" name="page" id="page-<?php $pages->cid(); ?>" value="<?php $pages->cid(); ?>" data-type="page" data-name="<?php $pages->title(); ?>" data-url="<?php $pages->permalink(); ?>" />
-                                        <label for="page-<?php $pages->cid(); ?>"><?php $pages->title(); ?></label></li>
+                                        <label for="page-<?php $pages->cid(); ?>"><?php $pages->title(); ?></label>
+                                    </li>
                                 <?php endwhile; ?>
+                            </ul>
+                        </section>
+                    </div>
+                    <div id="internal" class="tab-content hidden">
+                        <section class="typecho-post-option category-option">
+                            <ul>
+                                <li><input type="checkbox" name="index" id="index" value="{siteUrl}" data-type="custom" data-name="<?php _e("首页"); ?>" data-url="{siteUrl}" />
+                                    <label for="index"><?php _e("首页"); ?></label>
+                                </li>
+                                <li><input type="checkbox" name="admin" id="admin" value="{adminUrl}" data-type="custom" data-name="<?php _e("后台"); ?>" data-url="{adminUrl}" />
+                                    <label for="index"><?php _e("后台"); ?></label>
+                                </li>
                             </ul>
                         </section>
                     </div>
@@ -59,7 +71,7 @@ Typecho_Widget::widget('Widget_Metas_Tag_Admin')->to($tags);
                             <p><input type="text" id="link_url" name="link_url" value="" placeholder="http://" class="w-100"></p>
                         </section>
                     </div>
-                    <button class="btn primary" id="add_to_menu" data-type="#cat"><?php _e('添加') ?></button>
+                    <button class="btn primary" id="add_to_menu" data-type="#category"><?php _e('添加') ?></button>
                 </div>
             </div>
             <div class="col-mb-12 col-tb-8" role="main">

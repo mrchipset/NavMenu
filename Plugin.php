@@ -4,12 +4,12 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
     exit;
 
 /**
- * NavMenu for typecho
+ * Typecho 导航菜单插件
  * 
  * @package NavMenu
- * @author merdan
- * @version 1.0.0
- * @link http://merdan.cc
+ * @author Ryan, merdan
+ * @version 1.0.1
+ * @link https://doufu.ru
  */
 class NavMenu_Plugin implements Typecho_Plugin_Interface
 {
@@ -38,11 +38,10 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
         }
         $navMenuOrder = $db->fetchRow($db->select()->from('table.options')->where('name = ? and user = ?', 'navMenuOrder', 0));
         if (empty($navMenuOrder)) {
-            $siteUrl = str_replace("/", "\/", $options->siteUrl);
             $struct = array(
                 'name' => 'navMenuOrder',
                 'user' => 0,
-                'value' => '{"default":[{"type":"custom","name":"\u9996\u9875","id":"' . $siteUrl . '","class":"","target":"","children":[]}]}',
+                'value' => '{"default":[{"type":"internal","name":"\u9996\u9875","id":"{siteUrl}","class":"","target":"","children":[]}]}',
             );
             $db->query($db->insert('table.options')->rows($struct));
         }
@@ -73,11 +72,17 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
     {
     }
 
-    public static function header_scripts($header)
+    public static function isRtl()
     {
         $options = Helper::options();
-        $panelUrl = $options->pluginUrl . '/NavMenu/panel';
-        if ($options->lang == "ug_CN") {
+        return $options->lang == "ug_CN";
+    }
+
+    public static function header_scripts($header)
+    {
+
+        $panelUrl = Helper::options()->pluginUrl . '/NavMenu/panel';
+        if (self::isRtl()) {
             echo $header, '<link rel="stylesheet" href="' . $panelUrl . '/css/nav-menu-rtl.css"/>';
         } else {
             echo $header, '<link rel="stylesheet" href="' . $panelUrl . '/css/nav-menu.css"/>';
