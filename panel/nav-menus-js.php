@@ -113,18 +113,20 @@
 			parent_item.children('.menu_item').each(function() {
 				var d = $(this),
 					curr = {};
-				curr.type = d.attr('data-type');
-				curr.name = d.attr('data-name');
-				curr.id = d.attr('data-id');
-				curr.class = d.attr('data-class');
-				curr.target = d.attr('data-target');
+				if (!d.hasClass('deleted')) {
+					curr.type = d.attr('data-type');
+					curr.name = d.attr('data-name');
+					curr.id = d.attr('data-id');
+					curr.class = d.attr('data-class');
+					curr.target = d.attr('data-target');
 
-				if (d.children('ul').children('.menu_item').length > 0) {
-					curr.children = makeOrderlist(d.children('ul'));
-				} else {
-					curr.children = [];
+					if (d.children('ul').children('.menu_item').length > 0) {
+						curr.children = makeOrderlist(d.children('ul'));
+					} else {
+						curr.children = [];
+					}
+					sorted_data.push(curr);
 				}
-				sorted_data.push(curr);
 			});
 			return sorted_data;
 		}
@@ -183,13 +185,14 @@
 			var d = $(this),
 				item = $("#" + d.data("id"));
 			item.removeClass('active');
+			item.addClass('deleted');
+			updateMenuOrder();
 			item.find('.menu-item-handle').addClass('item_deleted');
 			item.find('.menu-item-bar').addClass('item_deleted');
 			item.fadeOut(1000);
 			setTimeout(function() {
 				item.remove();
 			}, 1000);
-			updateMenuOrder();
 			return false;
 		});
 
