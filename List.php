@@ -70,8 +70,9 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             'wrapId' => '',
             'itemTag' => 'li',
             'itemClass' => '',
+            'item' => '<a href="{url}" {target}>{name} {caret}</a>',
             'current' => 'current',
-            'caret' => '+'
+            'caret' => '+',
         ));
         $menuObject = $this->_nav_resourse->$menu;
         if ($menuObject) {
@@ -153,7 +154,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                 $html .= str_replace(
                     array('{url}', '{name}', '{caret}', '{target}'),
                     array($item['url'], $item['name'], $item['caret'], $item['target']),
-                    '<a href="{url}" {target}>{name} {caret}</a>'
+                    $navOptions->item
                 );
 
                 if (isset($v->children) && count($v->children) > 0) {
