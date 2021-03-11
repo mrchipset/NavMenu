@@ -10,7 +10,7 @@ Typecho_Widget::widget('Widget_Metas_Tag_Admin')->to($tags);
     <div class="body container">
         <?php include 'page-title.php'; ?>
         <div class="row typecho-page-main typecho-post-area">
-            <div id="edit-secondary" class="col-mb-12 col-tb-4" role="complementary">
+            <div id="edit-secondary" class="col-mb-12 col-tb-5" role="complementary">
                 <div class="typecho-table-wrap mb-20">
                     <h2 class="panel-title"><?php _e("新增菜单"); ?></h2>
                     <p><?php _e("因数据库有关，菜单名称建议用英文名字"); ?></p>
@@ -20,10 +20,10 @@ Typecho_Widget::widget('Widget_Metas_Tag_Admin')->to($tags);
                     <h2 class="panel-title"><?php _e("菜单项"); ?></h2>
                     <?php ?>
                     <ul class="typecho-option-tabs clearfix">
-                        <li class="w-25 active"><a href="#category"><?php _e('分类') ?></a></li>
-                        <li class="w-25"><a href="#page" id="tab-files-btn"><?php _e('独立页面') ?></a></li>
-                        <li class="w-25"><a href="#internal" id="tab-files-btn"><?php _e('内置链接') ?></a></li>
-                        <li class="w-25"><a href="#custom" id="tab-files-btn"><?php _e('自定义') ?></a></li>
+                        <li class="col-mb-6 col-wd-3 active"><a href="#category"><?php _e('分类') ?></a></li>
+                        <li class="col-mb-6 col-wd-3"><a href="#page" id="tab-files-btn"><?php _e('独立页面') ?></a></li>
+                        <li class="col-mb-6 col-wd-3"><a href="#internal" id="tab-files-btn"><?php _e('内置链接') ?></a></li>
+                        <li class="col-mb-6 col-wd-3"><a href="#custom" id="tab-files-btn"><?php _e('自定义') ?></a></li>
                     </ul>
                     <div id="category" class="tab-content">
                         <section class="typecho-post-option category-option">
@@ -74,7 +74,7 @@ Typecho_Widget::widget('Widget_Metas_Tag_Admin')->to($tags);
                     <button class="btn primary" id="add_to_menu" data-type="#category"><?php _e('添加') ?></button>
                 </div>
             </div>
-            <div class="col-mb-12 col-tb-8" role="main">
+            <div class="col-mb-12 col-tb-7" role="main">
                 <div class="col-mb-12 typecho-list">
                     <div class="typecho-table-wrap">
                         <h2><?php _e('菜单') ?></h2>
