@@ -114,7 +114,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                         }
                         $item['url'] = $category['permalink'];
                     case 'page':
-                        $page = $this->widgetById($v->id);
+                        $page = NavMenu_Plugin::widgetById($v->id);
                         $item['class'][] = 'menu-page-item';
                         if ($archive->is('page', $page->slug)) {
                             $item['class'][] = $navOptions->current;
@@ -166,18 +166,5 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             }
         }
         return $html;
-    }
-
-    private function widgetById($id)
-    {
-        $className = "Widget_Abstract_Contents";
-        $db = Typecho_Db::get();
-        $widget = new $className(Typecho_Request::getInstance(), Typecho_Widget_Helper_Empty::getInstance(), null);
-
-        $db->fetchRow(
-            $widget->select()->where("cid = ?", $id)->limit(1),
-            array($widget, 'push')
-        );
-        return $widget;
     }
 }

@@ -87,4 +87,16 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
             echo $header, '<link rel="stylesheet" href="' . $panelUrl . '/css/nav-menu.css"/>';
         }
     }
+    public static function widgetById($id)
+    {
+        $className = "Widget_Abstract_Contents";
+        $db = Typecho_Db::get();
+        $widget = new $className(Typecho_Request::getInstance(), Typecho_Widget_Helper_Empty::getInstance(), null);
+
+        $db->fetchRow(
+            $widget->select()->where("cid = ?", $id)->limit(1),
+            array($widget, 'push')
+        );
+        return $widget;
+    }
 }
