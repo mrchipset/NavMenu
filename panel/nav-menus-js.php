@@ -139,20 +139,18 @@
 		$(document).on('click', '.save_menu_item', function() {
 
 			var d = $(this),
-				item_settings_id = "#" + d.attr('data-item-settings'),
-				item_id = "#" + d.attr('data-item'),
-				$item = $(item_id),
-				$item_settings = $(item_settings_id),
+				$item = $("#" + d.attr('data-item')),
+				$item_settings = $("#" + d.attr('data-item-settings')),
 				$link_name = $item_settings.find("input[name='link_name']"),
-				$link_url = $item_settings.find("input[name='link_url']");
-			$link_class = $item_settings.find("input[name='link_class']");
-			$link_target = $item_settings.find("input[name='link_target']");
+				$link_url = $item_settings.find("input[name='link_url']"),
+				$link_class = $item_settings.find("input[name='link_class']"),
+				$link_target = $item_settings.find("input[name='link_target']");
 
 			if (($link_name.val() !== undefined && $link_name.val() !== "") || ($link_url.val() !== undefined && $link_url.val() !== "")) {
 
 				if ($item.attr('data-name') !== $link_name.val()) {
 					$item.attr('data-name', $link_name.val());
-					$item.find('.menu-item-title').text($link_name.val());
+					$item.find('.menu-item-title').eq(0).text($link_name.val());
 				}
 
 				if ($item.attr('data-id') !== $link_url.val()) {
