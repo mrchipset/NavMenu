@@ -29,9 +29,7 @@
 		//更新菜单排序
 		function updateMenuOrder() {
 			setTimeout(function() {
-				$('.btn-save').attr('disabled', true);
 				$orderlist.val(JSON.stringify(makeOrderlist()));
-				$('.btn-save').attr('disabled', false);
 			}, 1000);
 		}
 
