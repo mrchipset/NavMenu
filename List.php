@@ -113,6 +113,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                             $item['class'][] = $navOptions->current;
                         }
                         $item['url'] = $category['permalink'];
+                        break;
                     case 'page':
                         $page = NavMenu_Plugin::widgetById($v->id);
                         $item['class'][] = 'menu-page-item';
