@@ -12,7 +12,7 @@
 			'category': '<?php _e('分类') ?>',
 			'page': '<?php _e('独立页面') ?>',
 			'internal': '<?php _e('内置链接') ?>',
-			'default': '<?php _e('自定义') ?>'
+			'custom': '<?php _e('自定义') ?>'
 		}
 
 		// 获取类型
@@ -21,7 +21,7 @@
 			if (jQuery.inArray(key, $nameList)) {
 				return $nameList[key];
 			}
-			return $nameList['default'];
+			return $nameList['custom'];
 		}
 		<?php $current_level = Typecho_Widget::widget('NavMenu_Edit')->getCurrentLevel(); ?>
 		var current_level = <?php echo  isset($current_level) ? $current_level : 0; ?>;
