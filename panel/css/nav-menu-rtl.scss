@@ -1,18 +1,14 @@
-.typecho-option-tabs {
-  li {
-    width: 33.33333333%;
+#menu-item-cat {
+  margin: 0;
+  padding: 0;
+
+  >li {
+    margin: 0;
+    padding: 0;
   }
 
   a {
     padding: 0 5px;
-  }
-
-  .w-25 {
-    width: 25%;
-  }
-
-  .w-33 {
-    width: 33.3%;
   }
 }
 

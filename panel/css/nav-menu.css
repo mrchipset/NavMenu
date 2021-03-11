@@ -6,15 +6,17 @@ h2.panel-title {
   margin-bottom: 20px;
 }
 
-.typecho-option-tabs .w-25 {
-  width: 25%;
+#menu-item-cat {
+  margin: 0;
+  padding: 0;
 }
 
-.typecho-option-tabs .w-33 {
-  width: 33.3%;
+#menu-item-cat > li {
+  margin: 0;
+  padding: 0;
 }
 
-.typecho-option-tabs a {
+#menu-item-cat a {
   padding: 0 5px;
 }
 

@@ -1,17 +1,15 @@
-.typecho-option-tabs li {
-  width: 33.33333333%;
+#menu-item-cat {
+  margin: 0;
+  padding: 0;
 }
 
-.typecho-option-tabs a {
+#menu-item-cat > li {
+  margin: 0;
+  padding: 0;
+}
+
+#menu-item-cat a {
   padding: 0 5px;
-}
-
-.typecho-option-tabs .w-25 {
-  width: 25%;
-}
-
-.typecho-option-tabs .w-33 {
-  width: 33.3%;
 }
 
 #selectedItems {
