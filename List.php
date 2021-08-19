@@ -56,6 +56,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
         }
         $this->_nav_resourse = json_decode($this->_nav_resourse['value']);
     }
+
     /**
      * @param string $menu 菜单名称
      * @param null $navOptions 菜单配置
@@ -148,7 +149,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                     $item['class'][] = 'menu-has-children';
 
                 if ($navOptions->itemTag)
-                    $html .= '<' . $navOptions->itemTag  . ' class="' . implode(" ", $item['class']) . '">';
+                    $html .= '<' . $navOptions->itemTag . ' class="' . implode(" ", $item['class']) . '">';
 
                 $html .= str_replace(
                     array('{url}', '{name}', '{caret}', '{target}'),
@@ -157,7 +158,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                 );
 
                 if (isset($v->children) && count($v->children) > 0) {
-                    $html .= '<ul class="sub-menu level-' . $level .  '">';
+                    $html .= '<ul class="sub-menu level-' . $level . '">';
                     $html .= self::generateNavItems($v->children, $level + 1);
                     $html .= '</ul>';
                 }

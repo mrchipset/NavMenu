@@ -65,6 +65,7 @@ class NavMenu_Edit extends NavMenu_Abstract_Nav implements Widget_Interface_Do
     public function menuForm()
     {
         $form = new Typecho_Widget_Helper_Form($this->security->getIndex('/action/nav-edit'), Typecho_Widget_Helper_Form::POST_METHOD);
+        $form->setAttribute('id', 'menu-form');
 
         /** 菜单数据 */
         $nav_menu = new Typecho_Widget_Helper_Form_Element_Text('nav_menu', NULL, NULL, _t('菜单名称'));
@@ -88,8 +89,9 @@ class NavMenu_Edit extends NavMenu_Abstract_Nav implements Widget_Interface_Do
         foreach ($this->_nav_menus as $nav_menu) {
             $url = Helper::url(urlencode('NavMenu/panel/nav-menus.php') . '&current=' . $nav_menu);
             $class = $this->_current_nav === $nav_menu ? 'active' : '';
+            $title = _t("删除菜单");
             echo <<<HTML
-<li class="w-30 $class"><a href="$url">$nav_menu</a></li>
+<li class="menu-button w-30 $class" data-menu="${nav_menu}"><a class="w-full" href="$url">$nav_menu</a><span class="icon del_menu" title="${title}">×</span></li>
 HTML;
         }
     }
@@ -114,7 +116,7 @@ HTML;
         $form->addInput($current);
 
         /** 提交按钮 */
-        $submit = new Typecho_Widget_Helper_Form_Element_Submit('submit', NULL, _t('保存设置'));
+        $submit = new Typecho_Widget_Helper_Form_Element_Submit('submit', NULL, _t('保存菜单'));
         $submit->input->setAttribute('class', 'btn primary btn-save');
         $form->addItem($submit);
         $nav_menu_order->value(json_encode($this->_nav_resourse->{$this->_current_nav}));
@@ -126,6 +128,7 @@ HTML;
         $this->security->protect();
         $this->on($this->request->is('do=update'))->updateNav();
         $this->on($this->request->is('do=add-menu'))->addMenu();
+        $this->on($this->request->is('do=del-menu'))->delMenu();
     }
 
     public function addMenu()
@@ -147,6 +150,31 @@ HTML;
         $this->widget('Widget_Notice')->set(_t('菜单新增成功'), 'success');
 
         /** 转向原页 */
+        $this->response->goBack();
+    }
+
+    public function delMenu()
+    {
+        $menu = $this->request->get('nav_menu');
+        if (!in_array($menu, $this->_nav_menus)) {
+            /** 提示信息 */
+            $this->widget('Widget_Notice')->set(_t('菜单不存在'), 'error');
+
+            /** 转向原页 */
+            $this->response->goBack();
+        }
+        foreach ($this->_nav_menus as $k => $v) {
+            if ($v == $menu) {
+                unset($this->_nav_menus[$k]);
+                break;
+            }
+        }
+        $resource = json_decode(json_encode($this->_nav_resourse), true);
+        unset($resource[$menu]);
+        $this->_nav_resourse = json_decode(json_encode($resource));
+        $this->update(array('value' => json_encode($this->_nav_menus)), $this->db->sql()->where('name = ?', 'navMenus'));
+        $this->update(array('value' => json_encode($this->_nav_resourse)), $this->db->sql()->where('name = ?', 'navMenuOrder'));
+        $this->widget('Widget_Notice')->set(_t("菜单【%s】删除成功", $menu), 'error');
         $this->response->goBack();
     }
 

@@ -8,7 +8,7 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
  *
  * @package NavMenu
  * @author Ryan, merdan
- * @version 1.0.2
+ * @version 1.0.3
  * @link https://doufu.ru
  */
 class NavMenu_Plugin implements Typecho_Plugin_Interface
@@ -123,5 +123,21 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
             array($widget, 'push')
         );
         return $widget;
+    }
+
+    /**
+     * 对象转数组
+     * @param $obj
+     * @return array
+     */
+    public static function objectToArray($obj)
+    {
+        $_arr = is_object($obj) ? get_object_vars($obj) : $obj;
+        $arr = [];
+        foreach ($_arr as $key => $val) {
+            $val = (is_array($val)) || is_object($val) ? self::objectToArray($val) : $val;
+            $arr[$key] = $val;
+        }
+        return $arr;
     }
 }

@@ -6,11 +6,38 @@ h2.panel-title {
   margin-bottom: 20px;
 }
 
+.menu-button {
+  display: flex;
+  position: relative;
+
+  a {
+    width: 100%;
+  }
+
+  .icon {
+    position: absolute;
+    right: 0;
+    width: 25px;
+    height: 25px;
+    transition: all .2s;
+    cursor: pointer;
+    border-radius: 0 1px 1px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #D32B2B;
+      color: #fff;
+    }
+  }
+}
+
 #menu-item-cat {
   margin: 0;
   padding: 0;
 
-  >li {
+  > li {
     margin: 0;
     padding: 0;
   }
@@ -21,7 +48,7 @@ h2.panel-title {
 }
 
 #menu-list {
-  >.tab-content {
+  > .tab-content {
     min-height: 250px;
   }
 }
@@ -183,7 +210,7 @@ h2.panel-title {
 }
 
 .menu_item {
-  &.active>.menu-item-settings {
+  &.active > .menu-item-settings {
     display: block;
   }
 
