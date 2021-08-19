@@ -5,7 +5,7 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
 
 /**
  * Typecho 导航菜单插件
- * 
+ *
  * @package NavMenu
  * @author Ryan, merdan
  * @version 1.0.2
@@ -20,13 +20,12 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
      * @static
      * @access public
      * @return void
-     * @throws Typecho_Plugin_Exception
+     * @throws Typecho_Db_Exception|Typecho_Exception
      */
     public static function activate()
     {
         // 初始化数据库
         $db = Typecho_Db::get();
-        $options = Typecho_Widget::widget('Widget_Options');
         $navMenus = $db->fetchRow($db->select()->from('table.options')->where('name = ? and user = ?', 'navMenus', 0));
         if (empty($navMenus)) {
             $struct = array(
@@ -55,28 +54,47 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
      * @static
      * @access public
      * @return void
-     * @throws Typecho_Plugin_Exception
+     * @throws Typecho_Db_Exception|Typecho_Plugin_Exception
      */
     public static function deactivate()
     {
+        if (Helper::options()->plugin('NavMenu')->isDrop == 1) {
+            $db = Typecho_Db::get();
+            $db->query($db->delete('table.options')->where('table.options.name = ?', 'navMenus'));
+            $db->query($db->delete('table.options')->where('table.options.name = ?', 'navMenuOrder'));
+        }
         Helper::removeAction('nav-edit');
         Helper::removePanel(3, 'NavMenu/panel/nav-menus.php');
     }
 
     public static function config(Typecho_Widget_Helper_Form $form)
     {
+        $edit = new Typecho_Widget_Helper_Form_Element_Radio(
+            'isDrop',
+            array('0' => '删除', '1' => '不删除'), '1',
+            '彻底卸载(<b style="color:red">请慎重选择</b>)',
+            '请选择是否在禁用插件时，删除数据表');
+        $form->addInput($edit);
     }
 
     public static function personalConfig(Typecho_Widget_Helper_Form $form)
     {
     }
 
+    /**
+     * 判断是否从右到左
+     * @return bool
+     */
     public static function isRtl()
     {
         $options = Helper::options();
-        return $options->lang == "ug_CN";
+        return in_array($options->lang, ["ug_CN"]);
     }
 
+    /**
+     * 输出 CSS
+     * @param $header
+     */
     public static function header_scripts($header)
     {
 
@@ -87,6 +105,13 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
             echo $header, '<link rel="stylesheet" href="' . $panelUrl . '/css/nav-menu.css"/>';
         }
     }
+
+    /**
+     * 根据 cid 获取 Widget
+     * @param $id
+     * @return Widget_Abstract_Contents
+     * @throws Typecho_Db_Exception
+     */
     public static function widgetById($id)
     {
         $className = "Widget_Abstract_Contents";
