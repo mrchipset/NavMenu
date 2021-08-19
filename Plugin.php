@@ -60,8 +60,8 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
     {
         if (Helper::options()->plugin('NavMenu')->isDrop == 1) {
             $db = Typecho_Db::get();
-            $db->query($db->delete('table.options')->where('table.options.name = ?', 'navMenus'));
-            $db->query($db->delete('table.options')->where('table.options.name = ?', 'navMenuOrder'));
+            $db->query($db->delete('table.options')->where('table.options.name = ? and table.options.user = ?', 'navMenus', 0));
+            $db->query($db->delete('table.options')->where('table.options.name = ? and table.options.user = ?', 'navMenuOrder', 0));
         }
         Helper::removeAction('nav-edit');
         Helper::removePanel(3, 'NavMenu/panel/nav-menus.php');
@@ -71,7 +71,7 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
     {
         $edit = new Typecho_Widget_Helper_Form_Element_Radio(
             'isDrop',
-            array('0' => '删除', '1' => '不删除'), '1',
+            array('1' => '删除', '0' => '不删除'), '0',
             '彻底卸载(<b style="color:red">请慎重选择</b>)',
             '请选择是否在禁用插件时，删除数据表');
         $form->addInput($edit);
