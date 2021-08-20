@@ -13,16 +13,10 @@ class NavMenu_List extends NavMenu_Abstract_Nav
     private $_nav_resourse = null;
     private $_nav_menus;
     private $_current_nav;
-    private $_customCreateNavItemsCallback = false;
 
     public function __construct($request, $response, $params = null)
     {
         parent::__construct($request, $response, $params);
-
-        /** 初始化回调函数 */
-        if (function_exists('createNavItemsCallback')) {
-            $this->_customCreateNavItemsCallback = true;
-        }
 
         $_nav_menus = $this->db->fetchRow($this->select()
             ->where('name = ?', 'navMenus')->limit(1));
