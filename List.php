@@ -69,8 +69,8 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             'current' => 'current',
             'caret' => '+',
         ));
-        $menuObject = $this->_nav_resourse->$menu;
-        if ($menuObject) {
+        if (isset($this->_nav_resourse->$menu)) {
+            $menuObject = $this->_nav_resourse->$menu;
             if ($this->_navOptions->wrapTag) {
                 echo '<' . $this->_navOptions->wrapTag . (empty($this->_navOptions->wrapClass) ? ' class="nav-menu"' : ' class="nav-menu ' . $this->_navOptions->wrapClass . '"') . (empty($this->_navOptions->wrapId) ? '' : ' id="' . $this->_navOptions->wrapId . '"') . '>';
                 echo self::generateNavItems($menuObject);
@@ -79,11 +79,12 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                 echo self::generateNavItems($menuObject);
             }
             $this->stack = $this->_map;
-        }
+        } else _e("菜单【%s】不存在", $menu);
     }
 
     /** 构建菜单 */
-    private function generateNavItems($items, $level = 1)
+    private
+    function generateNavItems($items, $level = 1)
     {
         $html = '';
         $archive = Typecho_Widget::widget('Widget_Archive');
