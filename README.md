@@ -1,11 +1,12 @@
 # Typecho 自定义菜单插件
 
 ## 安装说明
- 将插件克隆到本地, 放到 `usr/plugins` 目录下即可。
+
+将插件克隆到本地, 放到 `usr/plugins` 目录下即可。
 
 ## 插件说明
-此插件早在2015年merdan在大三时就已完成。当时只支持单个菜单，后来抽点时间改成多菜单支持。
-最近本人用到了这个插件，发现这个插件存在许多问题，一一修复并发布到 Github。
+
+此插件早在2015年merdan在大三时就已完成。当时只支持单个菜单，后来抽点时间改成多菜单支持。 最近本人用到了这个插件，发现这个插件存在许多问题，一一修复并发布到 Github。
 
 ## 插件特点：
 
@@ -25,10 +26,13 @@
 4. 拉动菜单结构可以调整菜单顺序和层次。
 5. 调整完了之后 *务必点击 `保存设置` 按钮进行保存，否则菜单不会生效*
 6. 在主题中使用一下方法调用菜单:
+
 ```php
 <?php Typecho_Widget::widget('NavMenu_List')->navMenu('header'); ?>
 ```
+
 7. 当前菜单有相应的 `.current` class 名，可进行菜单高亮等布置
+
 ## 调用函数说明：
 
 ```php
@@ -39,7 +43,9 @@
 public function navMenu($menu = 'default', $navOptions = NULL)
 
 ```
+
 ## 菜单配置项
+
 ```php
 [
     'wrapTag' => 'ul', // 菜单项的容器
@@ -47,14 +53,15 @@ public function navMenu($menu = 'default', $navOptions = NULL)
     'wrapId' => '', // 容器自定义ID (二级菜单展开等功能可使用ID 去解决)
     'itemTag' => 'li', // a 链接的容器
     'itemClass' => '', // 容器自定义class
+    'linkClass' => '', // 链接自定义class
     'current' => 'current', // 当前菜单的类名
     'caret' => '+' // 有子菜单的菜单添加提示下拉图标
 ];
 ```
 
 ## 插件截图
-![截图](https://raw.githubusercontent.com/benzbrake/NavMenu/master/screen.png)
 
+![截图](https://raw.githubusercontent.com/benzbrake/NavMenu/master/screen.png)
 
 ## 其他
 

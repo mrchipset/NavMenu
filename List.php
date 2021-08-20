@@ -65,7 +65,8 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             'wrapId' => '',
             'itemTag' => 'li',
             'itemClass' => '',
-            'item' => '<a href="{url}" {target}>{name} {caret}</a>',
+            'item' => '<a class="{class}" href="{url}" {target}>{name} {caret}</a>',
+            'linkClass' => 'menu-link',
             'current' => 'current',
             'caret' => '+',
         ));
@@ -83,8 +84,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
     }
 
     /** 构建菜单 */
-    private
-    function generateNavItems($items, $level = 1)
+    private function generateNavItems($items, $level = 1)
     {
         $html = '';
         $archive = Typecho_Widget::widget('Widget_Archive');
@@ -93,6 +93,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             foreach ($items as $key => $v) {
                 $item = array();
                 $item['class'] = array('menu-item');
+                $item['linkClass'] = array('menu-link');
                 if ($navOptions->itemClass) {
                     $item['class'][] = $navOptions->itemClass;
                 }
@@ -148,8 +149,8 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                     $html .= '<' . $navOptions->itemTag . ' class="' . implode(" ", $item['class']) . '">';
 
                 $html .= str_replace(
-                    array('{url}', '{name}', '{caret}', '{target}'),
-                    array($item['url'], $item['name'], $item['caret'], $item['target']),
+                    array('{url}', '{name}', '{caret}', '{target}', '{class}'),
+                    array($item['url'], $item['name'], $item['caret'], $item['target'], implode(" ", $item['linkClass'])),
                     $navOptions->item
                 );
 
