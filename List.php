@@ -93,7 +93,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             foreach ($items as $key => $v) {
                 $item = array();
                 $item['class'] = array('menu-item');
-                $item['linkClass'] = array('menu-link');
+                $item['linkClass'] = array('menu-link', $navOptions->linkClass);
                 if ($navOptions->itemClass) {
                     $item['class'][] = $navOptions->itemClass;
                 }
