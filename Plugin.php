@@ -8,7 +8,7 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
  *
  * @package NavMenu
  * @author Ryan, merdan
- * @version 1.0.3
+ * @version 1.1.0 b1
  * @link https://doufu.ru
  */
 class NavMenu_Plugin implements Typecho_Plugin_Interface
@@ -44,7 +44,7 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
             );
             $db->query($db->insert('table.options')->rows($struct));
         }
-        Helper::addPanel(3, 'NavMenu/panel/nav-menus.php', _t('菜单'), NULL, 'administrator');
+        Helper::addPanel(3, 'NavMenu/panel/nav-menus.php', _t('菜单'), _t('管理菜单'), 'administrator');
         Helper::addAction('nav-edit', 'NavMenu_Edit');
     }
 
@@ -114,15 +114,19 @@ class NavMenu_Plugin implements Typecho_Plugin_Interface
      */
     public static function widgetById($id)
     {
-        $className = "Widget_Abstract_Contents";
-        $db = Typecho_Db::get();
-        $widget = new $className(Typecho_Request::getInstance(), Typecho_Widget_Helper_Empty::getInstance(), null);
+        if (class_exists('\Utils\Helper')) {
+            return \Utils\Helper::widgetById('contents', $id);
+        } else {
+            $className = "Widget_Abstract_Contents";
+            $db = Typecho_Db::get();
+            $widget = new $className(Typecho_Request::getInstance(), Typecho_Widget_Helper_Empty::getInstance(), null);
 
-        $db->fetchRow(
-            $widget->select()->where("cid = ?", $id)->limit(1),
-            array($widget, 'push')
-        );
-        return $widget;
+            $db->fetchRow(
+                $widget->select()->where("cid = ?", $id)->limit(1),
+                array($widget, 'push')
+            );
+            return $widget;
+        }
     }
 
     /**
