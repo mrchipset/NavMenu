@@ -91,7 +91,7 @@ class NavMenu_Edit extends NavMenu_Abstract_Nav implements Widget_Interface_Do
             $class = $this->_current_nav === $nav_menu ? 'active' : '';
             $title = _t("删除菜单");
             echo <<<HTML
-<li class="menu-button w-30 $class" data-menu="${nav_menu}"><a class="w-full" href="$url">$nav_menu</a><span class="icon del_menu" title="${title}">×</span></li>
+<li class="menu-button w-30 $class" data-menu="{$nav_menu}"><a class="w-full" href="$url">$nav_menu</a><span class="icon del_menu" title="{$title}">×</span></li>
 HTML;
         }
     }
@@ -153,6 +153,10 @@ HTML;
         $this->response->goBack();
     }
 
+    /**
+     * 删除菜单 Action
+     * @return void
+     */
     public function delMenu()
     {
         $menu = $this->request->get('nav_menu');
@@ -160,8 +164,8 @@ HTML;
             /** 提示信息 */
             $this->widget('Widget_Notice')->set(_t('菜单不存在'), 'error');
 
-            /** 转向原页 */
-            $this->response->goBack();
+            /** 转向默认页 */
+            $this->response->redirect(Typecho_Common::url('extending.php?panel=NavMenu%2Fpanel%2Fnav-menus.php', Helper::options()->adminUrl), true);
         }
         foreach ($this->_nav_menus as $k => $v) {
             if ($v == $menu) {
@@ -175,7 +179,7 @@ HTML;
         $this->update(array('value' => json_encode($this->_nav_menus)), $this->db->sql()->where('name = ?', 'navMenus'));
         $this->update(array('value' => json_encode($this->_nav_resourse)), $this->db->sql()->where('name = ?', 'navMenuOrder'));
         $this->widget('Widget_Notice')->set(_t("菜单【%s】删除成功", $menu), 'error');
-        $this->response->goBack();
+        $this->response->redirect(Typecho_Common::url('extending.php?panel=NavMenu%2Fpanel%2Fnav-menus.php', Helper::options()->adminUrl), true);
     }
 
     public function updateNav()

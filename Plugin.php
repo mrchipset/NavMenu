@@ -8,7 +8,7 @@ if (!defined('__TYPECHO_ROOT_DIR__'))
  *
  * @package NavMenu
  * @author Ryan, merdan
- * @version 1.1.0 b1
+ * @version 1.1.1
  * @link https://doufu.ru
  */
 class NavMenu_Plugin implements Typecho_Plugin_Interface
