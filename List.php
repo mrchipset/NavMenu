@@ -65,6 +65,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             'wrapId' => '',
             'itemTag' => 'li',
             'itemClass' => '',
+            'subMenuClass' => 'sub-menu',
             'item' => '<a class="{class}" href="{url}" {target}>{name} {caret}</a>',
             'linkClass' => 'menu-link',
             'current' => 'current',
@@ -155,7 +156,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                 );
 
                 if (isset($v->children) && count($v->children) > 0) {
-                    $html .= '<ul class="sub-menu level-' . $level . '">';
+                    $html .= '<ul class="' . $navOptions->subMenuClass . ' level-' . $level . '">';
                     $html .= self::generateNavItems($v->children, $level + 1);
                     $html .= '</ul>';
                 }
