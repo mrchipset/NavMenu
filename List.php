@@ -64,9 +64,9 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             'wrapClass' => '',
             'wrapId' => '',
             'itemTag' => 'li',
-            'itemClass' => '',
+            'itemClass' => '{has-children}menu-has-children{/has-children}',
             'item' => '<a class="{class}" href="{url}" {target}>{name} {caret}</a>',
-            'linkClass' => 'menu-link',
+            'linkClass' => '',
             'current' => 'current',
             'caret' => '+',
         ));
@@ -84,7 +84,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
     }
 
     /** 构建菜单 */
-    private function generateNavItems($items, $level = 1)
+    private function generateNavItems($items, $level = 1): string
     {
         $html = '';
         $archive = Typecho_Widget::widget('Widget_Archive');
@@ -92,8 +92,8 @@ class NavMenu_List extends NavMenu_Abstract_Nav
         if (is_array($items)) {
             foreach ($items as $key => $v) {
                 $item = array();
-                $item['class'] = array('menu-item');
-                $item['linkClass'] = array('menu-link', $navOptions->linkClass);
+                $item['class'] = ['menu-item'];
+                $item['linkClass'] = ['menu-link', $navOptions->linkClass];
                 if ($navOptions->itemClass) {
                     $item['class'][] = $navOptions->itemClass;
                 }
@@ -142,20 +142,27 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                 }
 
                 $item['caret'] = isset($v->children) && count($v->children) > 0 ? $navOptions->caret : '';
-                if (isset($v->children) && count($v->children) > 0)
-                    $item['class'][] = 'menu-has-children';
 
+                $itemBegin = '';
                 if ($navOptions->itemTag)
-                    $html .= '<' . $navOptions->itemTag . ' class="' . implode(" ", $item['class']) . '">';
+                    $itemBegin = '<' . $navOptions->itemTag . ' class="' . implode(" ", $item['class']) . '">';
 
-                $html .= str_replace(
+                $itemHtml = $itemBegin . str_replace(
                     array('{url}', '{name}', '{caret}', '{target}', '{class}'),
                     array($item['url'], $item['name'], $item['caret'], $item['target'], implode(" ", $item['linkClass'])),
                     $navOptions->item
                 );
 
                 if (isset($v->children) && count($v->children) > 0) {
-                    $html .= '<ul class="sub-menu level-' . $level . '">';
+                    $itemHtml = preg_replace("/\{has-children\}(.+?)\{\/has-children\}/m", "$1", $itemHtml);
+                } else {
+                    $itemHtml = preg_replace("/\{has-children\}(.+?)\{\/has-children\}/m", "", $itemHtml);
+                }
+
+                $html .= $itemHtml;
+
+                if (isset($v->children) && count($v->children) > 0) {
+                    $html .= '<ul class="' . $navOptions->subMenuClass . ' level-' . $level . '">';
                     $html .= self::generateNavItems($v->children, $level + 1);
                     $html .= '</ul>';
                 }
