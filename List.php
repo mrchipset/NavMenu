@@ -67,6 +67,8 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             'itemClass' => '{has-children}menu-has-children{/has-children}',
             'item' => '<a class="{class}" href="{url}" {target}>{name} {caret}</a>',
             'linkClass' => '',
+            'subMenu' => '<ul class="{class}">{content}</ul>',
+            'subMenuClass' => 'sub-menu',
             'current' => 'current',
             'caret' => '+',
         ));
@@ -148,8 +150,8 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                     $itemBegin = '<' . $navOptions->itemTag . ' class="' . implode(" ", $item['class']) . '">';
 
                 $itemHtml = $itemBegin . str_replace(
-                    array('{url}', '{name}', '{caret}', '{target}', '{class}'),
-                    array($item['url'], $item['name'], $item['caret'], $item['target'], implode(" ", $item['linkClass'])),
+                    ['{url}', '{name}', '{caret}', '{target}', '{class}'],
+                    [$item['url'], $item['name'], $item['caret'], $item['target'], implode(" ", $item['linkClass'])],
                     $navOptions->item
                 );
 
@@ -162,9 +164,12 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                 $html .= $itemHtml;
 
                 if (isset($v->children) && count($v->children) > 0) {
-                    $html .= '<ul class="' . $navOptions->subMenuClass . ' level-' . $level . '">';
-                    $html .= self::generateNavItems($v->children, $level + 1);
-                    $html .= '</ul>';
+                    if (!empty($navOptions->subMenu)) {
+                        $subMenuClass = $navOptions->subMenuClass . ' level-' . $level;
+                        $html .= str_replace(['{class}', '{content}'], [$subMenuClass, self::generateNavItems($v->children, $level + 1)], $navOptions->subMenu);
+                    } else {
+                        $html .= self::generateNavItems($v->children, $level + 1);
+                    }
                 }
                 if ($navOptions->itemTag) {
                     $html .= '</' . $navOptions->itemTag . '>';
