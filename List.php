@@ -105,12 +105,13 @@ class NavMenu_List extends NavMenu_Abstract_Nav
 
                 $item['name'] = $v->name;
 
+                $isCurrent = false;
                 switch ($v->type) {
                     case 'category':
                         $category = Typecho_Widget::widget('Widget_Metas_Category_List')->getCategory($v->id);
                         $item['class'][] = 'menu-category-item';
                         if ($archive->is('category', $category['slug'])) {
-                            $item['class'][] = $navOptions->current;
+                            $isCurrent = true;
                         }
                         $item['url'] = $category['permalink'];
                         break;
@@ -118,7 +119,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                         $page = NavMenu_Plugin::widgetById($v->id);
                         $item['class'][] = 'menu-page-item';
                         if ($archive->is('page', $page->slug)) {
-                            $item['class'][] = $navOptions->current;
+                            $isCurrent = true;
                         }
                         $item['url'] = $page->permalink;
                         break;
@@ -131,16 +132,20 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                             return Helper::options()->{$matches[1]};
                         }, $v->id);
                         if ($archive->request->getRequestUrl() == $item['url']) {
-                            $item['class'][] = $navOptions->current;
+                            $isCurrent = true;
                         }
                         break;
                     case 'custom':
                         $item['class'][] = 'menu-custom-item';
                         $item['url'] = $v->id;
                         if ($archive->request->getRequestUrl() == $item['url']) {
-                            $item['class'][] = $navOptions->current;
+                            $isCurrent = true;
                         }
                         break;
+                }
+
+                if ($isCurrent) {
+                    $item['class'][] = $navOptions->current;
                 }
 
                 $item['caret'] = isset($v->children) && count($v->children) > 0 ? $navOptions->caret : '';
@@ -150,10 +155,10 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                     $itemBegin = '<' . $navOptions->itemTag . ' class="' . implode(" ", $item['class']) . '">';
 
                 $itemHtml = $itemBegin . str_replace(
-                    ['{url}', '{name}', '{caret}', '{target}', '{class}'],
-                    [$item['url'], $item['name'], $item['caret'], $item['target'], implode(" ", $item['linkClass'])],
-                    $navOptions->item
-                );
+                        ['{url}', '{name}', '{caret}', '{target}', '{class}', '{current}'],
+                        [$item['url'], $item['name'], $item['caret'], $item['target'], implode(" ", $item['linkClass']), $isCurrent ? $navOptions->current : ''],
+                        $navOptions->item
+                    );
 
                 if (isset($v->children) && count($v->children) > 0) {
                     $itemHtml = preg_replace("/\{has-children\}(.+?)\{\/has-children\}/m", "$1", $itemHtml);
