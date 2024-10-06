@@ -60,10 +60,10 @@ class NavMenu_List extends NavMenu_Abstract_Nav
         //初始化一些变量
         $this->_navOptions = Typecho_Config::factory($navOptions);
         $this->_navOptions->setDefault(array(
-            'wrapTag' => 'ul',
-            'wrapClass' => '',
-            'wrapId' => '',
-            'itemTag' => 'li',
+            'wrapTag' => 'nav',
+            'wrapClass' => 'clearfix',
+            'wrapId' => 'nav-menu',
+            'itemTag' => '',
             'itemClass' => '{has-children}menu-has-children{/has-children}',
             'item' => '<a class="{class}" href="{url}" {target}>{name} {caret}</a>',
             'linkClass' => '',
@@ -81,13 +81,14 @@ class NavMenu_List extends NavMenu_Abstract_Nav
             } else {
                 echo self::generateNavItems($menuObject);
             }
-            $this->stack = $this->_map;
+            // $this->stack = $this->_map;
         } else _e("菜单【%s】不存在", $menu);
     }
 
     /** 构建菜单 */
     private function generateNavItems($items, $level = 1): string
     {
+        $db = \Typecho\Db::get();
         $html = '';
         $archive = Typecho_Widget::widget('Widget_Archive');
         $navOptions = $this->_navOptions;
@@ -108,7 +109,11 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                 $isCurrent = false;
                 switch ($v->type) {
                     case 'category':
-                        $category = Typecho_Widget::widget('Widget_Metas_Category_List')->getCategory($v->id);
+                    case 'cat':
+                        $category = $db->fetchRow($db->select()->from('table.metas')->where('type = ? AND mid = ?', 'category', $v->id));
+                        // $category = Typecho_Widget::widget('Widget_Metas_Category_List')->getCategory($v->id);
+                        $category['pathinfo'] = \Typecho\Router::url('category', $category);
+                        $category['permalink'] = \Typecho\Common::url($category['pathinfo'], null);
                         $item['class'][] = 'menu-category-item';
                         if ($archive->is('category', $category['slug'])) {
                             $isCurrent = true;
@@ -145,7 +150,7 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                 }
 
                 if ($isCurrent) {
-                    $item['class'][] = $navOptions->current;
+                    $item['linkClass'][] = $navOptions->current;
                 }
 
                 $item['caret'] = isset($v->children) && count($v->children) > 0 ? $navOptions->caret : '';
@@ -154,11 +159,20 @@ class NavMenu_List extends NavMenu_Abstract_Nav
                 if ($navOptions->itemTag)
                     $itemBegin = '<' . $navOptions->itemTag . ' class="' . implode(" ", $item['class']) . '">';
 
-                $itemHtml = $itemBegin . str_replace(
+                if (!array_key_exists('url', $item)) {
+                    $itemHtml = $itemBegin . str_replace(
+                        ['{name}', '{caret}', '{target}', '{class}', '{current}'],
+                        [$item['name'], $item['caret'], $item['target'], implode(" ", $item['linkClass']), $isCurrent ? $navOptions->current : ''],
+                        $navOptions->item
+                    );
+                } else {
+                    $itemHtml = $itemBegin . str_replace(
                         ['{url}', '{name}', '{caret}', '{target}', '{class}', '{current}'],
                         [$item['url'], $item['name'], $item['caret'], $item['target'], implode(" ", $item['linkClass']), $isCurrent ? $navOptions->current : ''],
                         $navOptions->item
                     );
+                }
+
 
                 if (isset($v->children) && count($v->children) > 0) {
                     $itemHtml = preg_replace("/\{has-children\}(.+?)\{\/has-children\}/m", "$1", $itemHtml);
